@@ -6,18 +6,20 @@ import 'package:flutter/services.dart';
 class Talsec {
   static const MethodChannel _channel = MethodChannel('talsec');
 
-  static Future<String?> get platformVersion async {
-    final String? version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
+  // static Future<String?> get platformVersion async {
+  //   final String? version = await _channel.invokeMethod('getPlatformVersion');
+  //   return version;
+  // }
 
   static Future<bool> get isEmulator async {
     final bool isEmulator = await _channel.invokeMethod('isEmulator');
     return isEmulator;
   }
 
-  static Future<bool> get isHook async {
-    final bool isHook = await _channel.invokeMethod('isHook');
+  static Future<bool> isHook(String bundleID)  async {
+    final bool isHook = await _channel.invokeMethod('isHook', <String, dynamic>{
+      "bundleID": bundleID
+    });
     return isHook;
   }
 
@@ -31,8 +33,10 @@ class Talsec {
     return isUntrustedInstall;
   }
 
-  static Future<bool> get isDeviceNotSupported async {
-    final bool isDeviceNotSupported = await _channel.invokeMethod('isDeviceNotSupported');
+  static Future<bool> isDeviceNotSupported(String bundleID) async {
+    final bool isDeviceNotSupported = await _channel.invokeMethod('isDeviceNotSupported', <String, dynamic>{
+      "bundleID": bundleID
+    });
     return isDeviceNotSupported;
   }
 }

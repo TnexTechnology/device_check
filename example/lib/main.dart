@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -30,8 +32,16 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await Talsec.platformVersion ?? 'Unknown platform version';
+      bool isDeviceNotSupported = await Talsec.isDeviceNotSupported(Platform.isIOS ? "com.tnex.talsec.talsecExample" : "");
+      bool isEmulator = await  Talsec.isEmulator ;
+      bool isHook = await Talsec.isHook(Platform.isIOS ? "com.tnex.talsec.talsecExample" : "");
+      bool isRooted = await Talsec.isRooted;
+      bool isUntrustedInstall = await Talsec.isUntrustedInstall;
+      platformVersion = 'isDeviceNotSupported $isDeviceNotSupported | '
+          'isEmulator $isEmulator | '
+          'isHook $isHook | '
+          'isRooted $isRooted | '
+          'isUntrustedInstall $isUntrustedInstall';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
