@@ -33,13 +33,13 @@ class TalsecPlugin: FlutterPlugin, MethodCallHandler {
     }else if (call.method == "isHook") {
       result.success(HookDetectionCheck().hookDetected(context))
     }else if (call.method == "isRooted") {
-      result.success(RootedCheck().isJailBroken(context))
+      result.success(RootedCheck().isJailBroken())
     }else if (call.method == "isUntrustedInstall") {
       result.success(UntrustedInstallationDetected().isUntrustedInstaller(context))
     }else if(call.method == "isDeviceNotSupported"){
       val isNotSupported = EmulatorCheck().isEmulator(context)
               || HookDetectionCheck().hookDetected(context)
-              || RootedCheck().isJailBroken(context)
+              || RootedCheck().isJailBroken()
               || UntrustedInstallationDetected().isUntrustedInstaller(context)
 
       result.success(isNotSupported)

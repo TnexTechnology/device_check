@@ -1,9 +1,6 @@
 package com.tnex.talsec.talsec
 
-import com.scottyab.rootbeer.RootBeer
-
 import android.content.Context
-import android.os.Build
 import java.io.InputStreamReader
 
 import java.io.BufferedReader
@@ -21,8 +18,8 @@ class RootedCheck {
      * @return `true` if the device is rooted, `false` otherwise.
      */
 
-    fun isJailBroken(context: Context): Boolean {
-        return checkRooted() || rootBeerCheck(context)
+    fun isJailBroken(): Boolean {
+        return checkRooted()
     }
 
     private fun checkRooted(): Boolean {
@@ -58,10 +55,5 @@ class RootedCheck {
         } finally {
             process?.destroy()
         }
-    }
-
-    private fun rootBeerCheck(context: Context): Boolean {
-        val rootBeer = RootBeer(context)
-        return rootBeer.isRooted
     }
 }

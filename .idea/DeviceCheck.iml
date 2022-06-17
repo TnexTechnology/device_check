@@ -15,6 +15,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/example/ios/.symlinks/plugins/talsec/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/example/ios/.symlinks/plugins/talsec/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/talsec/example/ios/.symlinks/plugins/talsec/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
