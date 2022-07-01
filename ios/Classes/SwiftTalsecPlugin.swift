@@ -29,13 +29,17 @@ func getSwiftFunctionAddr(_ function: @escaping FunctionType) -> UnsafeMutableRa
           result(isEmulator)
           break
       case "isHook":
-          func msHookReturnFalse(takes: Int) -> Bool {
-              return false
-          }
           
-          let funcAddr = getSwiftFunctionAddr(msHookReturnFalse)
           let isReversed = IOSSecuritySuite.amIReverseEngineered()
-          let isMSHooked = IOSSecuritySuite.amIMSHooked(funcAddr)
+          var isMSHooked = false
+         #if arch(arm64)
+              func msHookReturnFalse(takes: Int) -> Bool {
+                  return false
+              }
+              
+              let funcAddr = getSwiftFunctionAddr(msHookReturnFalse)
+              isMSHooked = IOSSecuritySuite.amIMSHooked(funcAddr)
+         #endif
           
           if let args = call.arguments as? Dictionary<String, Any>,
             let bundleID = args["bundleID"] as? String{
@@ -52,14 +56,20 @@ func getSwiftFunctionAddr(_ function: @escaping FunctionType) -> UnsafeMutableRa
           result(jailbroken)
           break
       case "isUntrustedInstall":
-          func msHookReturnFalse(takes: Int) -> Bool {
-              return false
-          }
           
-          let funcAddr = getSwiftFunctionAddr(msHookReturnFalse)
           let isDebugged = IOSSecuritySuite.amIDebugged()
-          let isHasBreakpoint = IOSSecuritySuite.hasBreakpointAt(funcAddr, functionSize: nil)
-          let isWatchpoint = IOSSecuritySuite.hasWatchpoint()
+          var isHasBreakpoint = false
+          var isWatchpoint = false
+          #if arch(arm64)
+              func msHookReturnFalse(takes: Int) -> Bool {
+                  return false
+              }
+              
+              let funcAddr = getSwiftFunctionAddr(msHookReturnFalse)
+              isHasBreakpoint = IOSSecuritySuite.hasBreakpointAt(funcAddr, functionSize: nil)
+              isWatchpoint = IOSSecuritySuite.hasWatchpoint()
+          #endif
+          
           result(isDebugged || isHasBreakpoint || isWatchpoint)
           break
       case "isDeviceNotSupported":
