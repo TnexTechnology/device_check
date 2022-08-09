@@ -22,10 +22,11 @@ class HookDetectionCheck {
             "de.robv.android.xposed"
         )
         for (applicationInfo in applicationInfoList) {
-            if (Arrays.asList(*dangerousPackages).contains(applicationInfo.packageName)) {
+            if(!applicationInfo.packageName.isNullOrEmpty() && dangerousPackages.contains(applicationInfo.packageName)){
                 return true
             }
         }
+
         return advancedHookDetection(context)
     }
 
@@ -35,19 +36,33 @@ class HookDetectionCheck {
         } catch (e: Exception) {
             var zygoteInitCallCount = 0
             for (stackTraceElement in e.stackTrace) {
-                if (stackTraceElement.className == "com.android.internal.os.ZygoteInit") {
+                if (stackTraceElement != null &&
+                    !stackTraceElement.className.isNullOrEmpty() &&
+                    stackTraceElement.className == "com.android.internal.os.ZygoteInit") {
                     zygoteInitCallCount++
                     if (zygoteInitCallCount == 2) {
                         return true
                     }
                 }
-                if (stackTraceElement.className == "com.saurik.substrate.MS$2" && stackTraceElement.methodName == "invoked") {
+                if (stackTraceElement != null &&
+                    !stackTraceElement.className.isNullOrEmpty() &&
+                    !stackTraceElement.methodName.isNullOrEmpty() &&
+                    stackTraceElement.className == "com.saurik.substrate.MS$2" &&
+                    stackTraceElement.methodName == "invoked") {
                     return true
                 }
-                if (stackTraceElement.className == "de.robv.android.xposed.XposedBridge" && stackTraceElement.methodName == "main") {
+                if (stackTraceElement != null &&
+                    !stackTraceElement.className.isNullOrEmpty() &&
+                    !stackTraceElement.methodName.isNullOrEmpty() &&
+                    stackTraceElement.className == "de.robv.android.xposed.XposedBridge" &&
+                    stackTraceElement.methodName == "main") {
                     return true
                 }
-                if (stackTraceElement.className == "de.robv.android.xposed.XposedBridge" && stackTraceElement.methodName == "handleHookedMethod") {
+                if (stackTraceElement != null &&
+                    !stackTraceElement.className.isNullOrEmpty() &&
+                    !stackTraceElement.methodName.isNullOrEmpty() &&
+                    stackTraceElement.className == "de.robv.android.xposed.XposedBridge" &&
+                    stackTraceElement.methodName == "handleHookedMethod") {
                     return true
                 }
             }
@@ -56,15 +71,21 @@ class HookDetectionCheck {
     }
 
     private fun checkFrida(context: Context): Boolean {
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val runningServices = activityManager.getRunningServices(300)
-        if (runningServices != null) {
-            for (i in runningServices.indices) {
-                if (runningServices[i].process.contains("fridaserver")) {
-                    return true
+        try {
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val runningServices = activityManager.getRunningServices(300)
+            if (runningServices != null) {
+                for (i in runningServices.indices) {
+                    if (!runningServices[i].process.isNullOrEmpty() &&
+                        runningServices[i].process.contains("fridaserver")) {
+                        return true
+                    }
                 }
             }
+        }catch (e: Exception){
+
         }
+
         return false
     }
 }

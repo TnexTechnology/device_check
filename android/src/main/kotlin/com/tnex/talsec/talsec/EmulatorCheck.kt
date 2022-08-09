@@ -69,10 +69,10 @@ class EmulatorCheck {
             rating++
         }
         if (Build.BRAND == "generic" ||
-            Build.BRAND.equals(
+            (!Build.BRAND.isNullOrEmpty() && Build.BRAND.equals(
                 "android",
                 ignoreCase = true
-            ) || Build.BRAND == "generic_arm64" || Build.BRAND == "generic_x86" || Build.BRAND == "generic_x86_64"
+            ))|| Build.BRAND == "generic_arm64" || Build.BRAND == "generic_x86" || Build.BRAND == "generic_x86_64"
         ) {
             rating++
         }
@@ -85,34 +85,32 @@ class EmulatorCheck {
         if (Build.HARDWARE == "ranchu") {
             rating++
         }
-        if (Build.FINGERPRINT.contains("sdk_google_phone_arm64") ||
-            Build.FINGERPRINT.contains("sdk_google_phone_armv7")
-        ) {
+        if (!Build.FINGERPRINT.isNullOrEmpty()
+            && (Build.FINGERPRINT.contains("sdk_google_phone_arm64") || Build.FINGERPRINT.contains("sdk_google_phone_armv7"))) {
             rating++
         }
-        var result = (Build.FINGERPRINT.startsWith("generic")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.toLowerCase(Locale.ROOT).contains("droid4x")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || Build.HARDWARE == "goldfish" || Build.HARDWARE == "vbox86" || Build.PRODUCT == "sdk" || Build.PRODUCT.startsWith(
-            "google_sdk"
-        )
-                || Build.PRODUCT == "sdk_x86" || Build.PRODUCT == "vbox86p" || Build.BOARD.toLowerCase(
-            Locale.ROOT
-        )
-            .contains("nox")
-                || Build.BOOTLOADER.toLowerCase(Locale.ROOT).contains("nox")
-                || Build.HARDWARE.toLowerCase(Locale.ROOT).contains("nox")
-                || Build.PRODUCT.toLowerCase(Locale.ROOT).contains("nox")
-                || Build.SERIAL.toLowerCase(Locale.ROOT).contains("nox")
-                || Build.HOST.contains("Droid4x-BuildStation")
-                || Build.MANUFACTURER.startsWith("iToolsAVM")
-                || Build.DEVICE.startsWith("iToolsAVM")
-                || Build.MODEL.startsWith("iToolsAVM")
-                || Build.BRAND.startsWith("generic")
-                || Build.HARDWARE.startsWith("vbox86"))
+        var result = ((!Build.FINGERPRINT.isNullOrEmpty() && Build.FINGERPRINT.startsWith("generic"))
+                || (!Build.MODEL.isNullOrEmpty() && Build.MODEL.contains("google_sdk"))
+                || (!Build.MODEL.isNullOrEmpty() && Build.MODEL.toLowerCase(Locale.ROOT).contains("droid4x"))
+                || (!Build.MODEL.isNullOrEmpty() && Build.MODEL.contains("Emulator"))
+                || (!Build.MODEL.isNullOrEmpty() && Build.MODEL.contains("Android SDK built for x86"))
+                || (!Build.MANUFACTURER.isNullOrEmpty() && Build.MANUFACTURER.contains("Genymotion"))
+                || Build.HARDWARE == "goldfish"
+                || Build.HARDWARE == "vbox86"
+                || Build.PRODUCT == "sdk"
+                || (!Build.PRODUCT.isNullOrEmpty() && Build.PRODUCT.startsWith("google_sdk"))
+                || Build.PRODUCT == "sdk_x86"
+                || Build.PRODUCT == "vbox86p"
+                || (!Build.BOARD.isNullOrEmpty() && Build.BOARD.toLowerCase(Locale.ROOT).contains("nox"))
+                || (!Build.BOOTLOADER.isNullOrEmpty() && Build.BOOTLOADER.toLowerCase(Locale.ROOT).contains("nox"))
+                || (!Build.HARDWARE.isNullOrEmpty() && Build.HARDWARE.toLowerCase(Locale.ROOT).contains("nox"))
+                || (!Build.PRODUCT.isNullOrEmpty() && Build.PRODUCT.toLowerCase(Locale.ROOT).contains("nox"))
+                || (!Build.HOST.isNullOrEmpty() && Build.HOST.contains("Droid4x-BuildStation"))
+                || (!Build.MANUFACTURER.isNullOrEmpty() && Build.MANUFACTURER.startsWith("iToolsAVM"))
+                || (!Build.DEVICE.isNullOrEmpty() && Build.DEVICE.startsWith("iToolsAVM"))
+                || (!Build.MODEL.isNullOrEmpty() && Build.MODEL.startsWith("iToolsAVM"))
+                || (!Build.BRAND.isNullOrEmpty() && Build.BRAND.startsWith("generic"))
+                || (!Build.HARDWARE.isNullOrEmpty() && Build.HARDWARE.startsWith("vbox86")))
         if (result) return true
         result = result or (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
         if (result) return true
@@ -153,11 +151,16 @@ class EmulatorCheck {
 
     private fun checkFiles(targets: Array<String>): Boolean {
         for (pipe in targets) {
-            val qemu_file = File(pipe)
-            if (qemu_file.exists()) {
-                return true
+            try {
+                val isExists = File(pipe).exists()
+                if (isExists) {
+                    return true
+                }
+            }catch (e:RuntimeException){
+
             }
         }
+
         return false
     }
 
@@ -175,7 +178,10 @@ class EmulatorCheck {
             .getInstalledApplications(PackageManager.GET_META_DATA)
         for (packageInfo in packages) {
             val packageName = packageInfo.packageName
-            if (packageName.startsWith("com.vphone.")) {
+            if(packageName.isNullOrEmpty()){
+                return false
+            }
+            else if (packageName.startsWith("com.vphone.")) {
                 return true
             } else if (packageName.startsWith("com.bignox.")) {
                 return true
@@ -197,14 +203,22 @@ class EmulatorCheck {
                 return true
             }
         }
-        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val serviceInfos = manager.getRunningServices(30)
-        for (serviceInfo in serviceInfos) {
-            val serviceName = serviceInfo.service.className
-            if (serviceName.startsWith("com.bluestacks.")) {
-                return true
+
+        try {
+            val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val serviceInfos = manager.getRunningServices(30)
+            for (serviceInfo in serviceInfos) {
+                if(serviceInfo?.service != null){
+                    val serviceName = serviceInfo.service.className
+                    if (serviceName.isNotEmpty() && serviceName.startsWith("com.bluestacks.")) {
+                        return true
+                    }
+                }
             }
+        }catch (e: Exception){
+
         }
+
         return false
     }
 }

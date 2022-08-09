@@ -1,14 +1,10 @@
 package com.tnex.talsec.talsec
 
-import android.content.Context
 import java.io.InputStreamReader
 
 import java.io.BufferedReader
 
 import java.io.File
-
-
-
 
 
 class RootedCheck {
@@ -39,20 +35,30 @@ class RootedCheck {
             "/data/local/su"
         )
         for (path in paths) {
-            if (File(path).exists()) return true
+            var isExists = false
+            try {
+                isExists =  File(path).exists()
+            } catch (e: RuntimeException) {
+
+            }
+
+            if(isExists){
+                return true
+            }
         }
+
         return false
     }
 
     private fun checkRootMethod2(): Boolean {
         var process: Process? = null
-        return try {
+        try {
             process = Runtime.getRuntime().exec(arrayOf("/system/xbin/which", "su"))
-            val `in` = BufferedReader(InputStreamReader(process.inputStream))
-            `in`.readLine() != null
-        } catch (t: Throwable) {
-            false
-        } finally {
+            val inputBuffered = BufferedReader(InputStreamReader(process.inputStream))
+            return inputBuffered.readLine() != null
+        }catch (e: RuntimeException){
+            return false
+        }finally {
             process?.destroy()
         }
     }
